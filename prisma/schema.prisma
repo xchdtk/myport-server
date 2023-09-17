@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model team {
+  team_seq          Int       @id @default(autoincrement())
+  title             String    @db.VarChar(50)
+  simple_explantion String    @db.VarChar(100)
+  detail_explantion String?   @db.VarChar(500)
+  status            String    @db.VarChar(20)
+  create_date       DateTime? @db.DateTime(0)
+  modify_date       DateTime? @db.DateTime(0)
+  delete_date       DateTime? @db.DateTime(0)
+}
+
+model user {
+  user_seq    Int       @id @default(autoincrement())
+  name        String    @db.VarChar(20)
+  phone       String    @db.VarChar(20)
+  birth_date  String    @db.VarChar(20)
+  interests   String    @db.VarChar(20)
+  status      String?   @db.VarChar(20)
+  introduce   String?   @db.VarChar(300)
+  create_date DateTime? @db.DateTime(0)
+  modify_date DateTime? @db.DateTime(0)
+  delete_date DateTime? @db.DateTime(0)
+}
+
+model user_sns {
+  user_sns_seq Int       @id @default(autoincrement())
+  insta_url    String?   @db.VarChar(100)
+  github_url   String?   @db.VarChar(100)
+  velog_url    String?   @db.VarChar(100)
+  user_seq     Int
+  create_date  DateTime? @db.DateTime(0)
+  modify_date  DateTime? @db.DateTime(0)
+  delete_date  DateTime? @db.DateTime(0)
+
+  @@index([user_seq], map: "user_seq")
+}
+
+model user_team {
+  user_team_seq Int       @id @default(autoincrement())
+  user_seq      Int
+  team_seq      Int
+  user_role     String    @db.VarChar(20)
+  create_date   DateTime? @db.DateTime(0)
+  modify_date   DateTime? @db.DateTime(0)
+  delete_date   DateTime? @db.DateTime(0)
+
+  @@index([team_seq], map: "team_seq")
+  @@index([user_seq], map: "user_seq")
+}
+
+model user_term {
+  user_term_seq      Int       @id @default(autoincrement())
+  folio_agreement    Int?      @db.TinyInt
+  privacy_agreement  Int?      @db.TinyInt
+  location_agreement Int?      @db.TinyInt
+  user_seq           Int?
+  create_date        DateTime? @db.DateTime(0)
+  modify_date        DateTime? @db.DateTime(0)
+  delete_date        DateTime? @db.DateTime(0)
+
+  @@index([user_seq], map: "user_seq")
+}
