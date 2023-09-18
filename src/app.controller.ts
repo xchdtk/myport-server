@@ -6,10 +6,8 @@ export class AppController {
 
   constructor() {}
 
-  @Get('/hello')
+  @Get()
   getHello(): void {
-    this.logger.log('Logging at controller');
-    this.logger.warn('Logging at controller');
-    this.logger.error('Logging at controller');
+    console.log('app controller');
   }
 }

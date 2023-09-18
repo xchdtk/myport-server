@@ -7,7 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model team {
+model teams {
   team_seq          Int       @id @default(autoincrement())
   title             String    @db.VarChar(50)
   simple_explantion String    @db.VarChar(100)
@@ -18,7 +18,7 @@ model team {
   delete_date       DateTime? @db.DateTime(0)
 }
 
-model user {
+model users {
   user_seq    Int       @id @default(autoincrement())
   name        String    @db.VarChar(20)
   phone       String    @db.VarChar(20)
@@ -31,7 +31,7 @@ model user {
   delete_date DateTime? @db.DateTime(0)
 }
 
-model user_sns {
+model users_sns {
   user_sns_seq Int       @id @default(autoincrement())
   insta_url    String?   @db.VarChar(100)
   github_url   String?   @db.VarChar(100)
@@ -44,7 +44,7 @@ model user_sns {
   @@index([user_seq], map: "user_seq")
 }
 
-model user_team {
+model user_teams {
   user_team_seq Int       @id @default(autoincrement())
   user_seq      Int
   team_seq      Int
@@ -57,7 +57,7 @@ model user_team {
   @@index([user_seq], map: "user_seq")
 }
 
-model user_term {
+model user_terms {
   user_term_seq      Int       @id @default(autoincrement())
   folio_agreement    Int?      @db.TinyInt
   privacy_agreement  Int?      @db.TinyInt
