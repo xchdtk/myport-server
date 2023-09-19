@@ -1,6 +1,16 @@
-import { Controller, Get, Inject, Logger, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Logger,
+  UseGuards,
+} from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { UsersService } from 'src/users/users.service';
+import { users } from '@prisma/client';
 
 @Controller('auth')
 export class AuthController {
@@ -13,11 +23,12 @@ export class AuthController {
     this.logger.log('Logging start auth controller');
   }
 
-  @UseGuards(ThrottlerGuard)
-  @Get()
-  getHello(): void {
-    this.logger.log('logging get method');
-
-    this.usersService.findUserId();
-  }
+  // @Post('/login')
+  // @UseGuards(ThrottlerGuard)
+  // @HttpCode(HttpStatus.OK)
+  // async login(
+  //   // @AuthUser() user: users
+  // ): Promise<users> {
+  //   return 'user';
+  // }
 }

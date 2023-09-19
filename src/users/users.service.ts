@@ -1,17 +1,19 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, users } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findUserId() {
+  async findOne(email: string): Promise<users> {
     const data = await this.prisma.users.findFirst({
       where: {
-        user_seq: 1,
+        email: email,
       },
     });
     console.log('data', data);
+
+    return data;
   }
 }
