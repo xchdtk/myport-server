@@ -9,7 +9,7 @@ import {
   DecipherCCM,
 } from 'crypto';
 import { promisify } from 'util';
-// 'tpdlsdkgodqhrgkwk@11230708'
+
 @Injectable()
 export class CryptoService {
   private readonly passwordKey: string;
@@ -28,21 +28,22 @@ export class CryptoService {
     const cipher = createCipheriv('aes-256-ctr', key, this.passwordIv);
     const encryptedText = Buffer.concat([cipher.update(value), cipher.final()]);
 
-    return encryptedText;
+    return encryptedText.toString();
   }
 
-  async decodePassword(value: Buffer) {
+  async decodePassword(value: string) {
     const key = (await promisify(scrypt)(
       this.passwordKey,
       'salt',
       32,
     )) as Buffer;
+    const bufferValue = Buffer.from(value);
     const decipher = createDecipheriv('aes-256-ctr', key, this.passwordIv);
     const decryptedText = Buffer.concat([
-      decipher.update(value),
+      decipher.update(bufferValue),
       decipher.final(),
     ]);
 
-    return decryptedText;
+    return decryptedText.toString();
   }
 }

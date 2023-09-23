@@ -5,6 +5,9 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { CryptoModule } from './crypto/crypto.module';
+import appConfig from './config/app.config';
 
 @Module({
   imports: [
@@ -14,10 +17,14 @@ import { AuthModule } from './auth/auth.module';
         limit: 10,
       },
     ]),
+    ConfigModule.forRoot({
+      load: [appConfig],
+    }),
     LoggerModule,
     UsersModule,
     AuthModule,
     PrismaModule,
+    CryptoModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -1,4 +1,5 @@
 import { Controller, Get, Logger } from '@nestjs/common';
+import { MailService } from './mail/mail.service';
 
 @Controller()
 export class AppController {
@@ -7,7 +8,9 @@ export class AppController {
   constructor() {}
 
   @Get()
-  getHello(): void {
+  async getHello(): Promise<string> {
     console.log('app controller');
+
+    return 'success';
   }
 }
