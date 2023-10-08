@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Body,
   HttpCode,
   HttpStatus,
   Inject,
@@ -19,6 +20,7 @@ import { AuthEmail } from './enums/email.enum';
 import { AuthService } from './auth.service';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { TokenInterceptor } from './interceptors/token.interceptor';
+import { AuthRegisterDto } from './dtos/auth-register.dto';
 
 @ApiTags('인증 API')
 @ApiResponse({
@@ -50,8 +52,19 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async authEmail(@Query('email') email): Promise<string> {
     const authCode = await this.authService.authEmail(email);
-    console.log('authCode', authCode);
     return authCode;
+  }
+
+  @ApiOperation({
+    summary: '회원가입 API',
+    description: '회원가입 API',
+  })
+  @Post('/register')
+  @UseGuards(ThrottlerGuard)
+  @HttpCode(HttpStatus.OK)
+  async authRegister(@Body() dto: AuthRegisterDto) {
+    await this.authService.register(dto);
+    return;
   }
 
   @Post('/login')

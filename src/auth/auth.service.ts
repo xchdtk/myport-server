@@ -6,6 +6,7 @@ import { CryptoService } from 'src/crypto/crypto.service';
 import { MailService } from 'src/mail/mail.service';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { AuthRegisterDto } from './dtos/auth-register.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,9 +23,9 @@ export class AuthService {
       const body = {
         to: email,
         from: `Folio <${process.env.MAIL_USER}>`,
-        subject: '이메일 인증 부탁드립니다.',
+        subject: '회원가입 이메일 인증 부탁드립니다.',
         text: '이메일 인증 관련 메일입니다.',
-        html: `인증코드를 입력해주세요.<br/> 인증코드: ${authCode}`,
+        html: `회원가입 인증코드를 입력해주세요.<br/> 인증코드: ${authCode}`,
       };
       await this.mailService.sendMail(body);
 
@@ -51,19 +52,28 @@ export class AuthService {
     return user;
   }
 
+  async register(dto: AuthRegisterDto) {
+    const { email, password } = dto;
+
+    const user = await this.usersService.findOne(email);
+    if (user) {
+      throw new BadRequestException('이미 가입된 이메일입니다.');
+    }
+    const encodePassword = await this.cryptoService.encodePassword(password);
+
+    const body = {
+      ...dto,
+      password,
+      encodePassword,
+    };
+
+    await this.usersService.save(body);
+    return true;
+  }
+
   async login(email: string, password: string): Promise<users> {
     let user: users;
-    console.log('들어오니??');
-    console.log(
-      'encode_password',
-      await this.cryptoService.encodePassword(password),
-    );
     user = await this.usersService.findOne(email);
-    console.log('user', user);
-    console.log(
-      'decode_password',
-      await this.cryptoService.decodePassword(user?.password),
-    );
 
     return user;
   }

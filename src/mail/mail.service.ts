@@ -7,13 +7,6 @@ export class MailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendMail(body: SendMailType): Promise<void> {
-    const { to, from, subject, text, html } = body;
-    await this.mailerService.sendMail({
-      to,
-      from,
-      subject,
-      text,
-      html,
-    });
+    await this.mailerService.sendMail(body);
   }
 }

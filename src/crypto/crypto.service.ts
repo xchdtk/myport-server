@@ -12,38 +12,32 @@ import { promisify } from 'util';
 
 @Injectable()
 export class CryptoService {
-  private readonly passwordKey: string;
+  private readonly passwordKey: Buffer;
   private readonly passwordIv: Buffer;
   constructor() {
-    this.passwordKey = 'tpdlsdkgodqhrgkwk11230708@';
+    this.passwordKey = randomBytes(32);
     this.passwordIv = randomBytes(16);
   }
 
   async encodePassword(value: string) {
-    const key = (await promisify(scrypt)(
+    const cipher = createCipheriv(
+      'aes-256-cbc',
       this.passwordKey,
-      'salt',
-      32,
-    )) as Buffer;
-    const cipher = createCipheriv('aes-256-ctr', key, this.passwordIv);
-    const encryptedText = Buffer.concat([cipher.update(value), cipher.final()]);
-
-    return encryptedText.toString();
+      this.passwordIv,
+    );
+    let encrypted = cipher.update(value, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    return encrypted;
   }
 
   async decodePassword(value: string) {
-    const key = (await promisify(scrypt)(
+    const decipher = createDecipheriv(
+      'aes-256-cbc',
       this.passwordKey,
-      'salt',
-      32,
-    )) as Buffer;
-    const bufferValue = Buffer.from(value);
-    const decipher = createDecipheriv('aes-256-ctr', key, this.passwordIv);
-    const decryptedText = Buffer.concat([
-      decipher.update(bufferValue),
-      decipher.final(),
-    ]);
-
-    return decryptedText.toString();
+      this.passwordIv,
+    );
+    let decrypted = decipher.update(value, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
   }
 }
