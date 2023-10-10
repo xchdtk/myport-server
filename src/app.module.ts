@@ -6,7 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { CryptoModule } from './crypto/crypto.module';
+import { HashModule } from './hash/hash.module';
 import appConfig from './config/app.config';
 
 @Module({
@@ -24,7 +24,7 @@ import appConfig from './config/app.config';
     UsersModule,
     AuthModule,
     PrismaModule,
-    CryptoModule,
+    HashModule,
   ],
   controllers: [AppController],
   providers: [],
