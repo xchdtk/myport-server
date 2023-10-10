@@ -14,6 +14,6 @@ export class AuthRegisterDto {
   password: string;
 
   @IsNotEmpty()
-  @IsOptional()
+  @IsString()
   phone: string;
 }

@@ -4,7 +4,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { LoggerModule } from 'src/logger/logger.module';
 import { UsersModule } from 'src/users/users.module';
-import { CryptoModule } from '../crypto/crypto.module';
+import { HashModule } from '../hash/hash.module';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { MailModule } from 'src/mail/mail.module';
@@ -15,7 +15,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
   imports: [
     LoggerModule,
     UsersModule,
-    CryptoModule,
+    HashModule,
     MailModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({

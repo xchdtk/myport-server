@@ -10,17 +10,17 @@ import {
   UseGuards,
   Query,
   UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { UsersService } from 'src/users/users.service';
 import { users } from '@prisma/client';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { AuthEmail } from './enums/email.enum';
 import { AuthService } from './auth.service';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
-import { TokenInterceptor } from './interceptors/token.interceptor';
 import { AuthRegisterDto } from './dtos/auth-register.dto';
+import { AuthUser } from '../users/decorators/user.decorator';
 
 @ApiTags('인증 API')
 @ApiResponse({
@@ -31,11 +31,7 @@ import { AuthRegisterDto } from './dtos/auth-register.dto';
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(
-    @Inject(UsersService)
-    private readonly usersService: UsersService,
-    private readonly authService: AuthService,
-  ) {
+  constructor(private readonly authService: AuthService) {
     this.logger.log('Logging start auth controller');
   }
 
@@ -62,17 +58,25 @@ export class AuthController {
   @Post('/register')
   @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
-  async authRegister(@Body() dto: AuthRegisterDto) {
+  async authRegister(@Body() dto: AuthRegisterDto): Promise<void> {
     await this.authService.register(dto);
     return;
   }
 
+  @ApiOperation({
+    summary: '로그인 API',
+    description: '로그인 API',
+  })
   @Post('/login')
   @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(TokenInterceptor)
-  async login(user: users): Promise<users> {
-    return user;
+  async login(@AuthUser() user): Promise<{ token: { access: string } }> {
+    const accessToken = await this.authService.signToken(user);
+    return {
+      token: {
+        access: accessToken,
+      },
+    };
   }
 }
