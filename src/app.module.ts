@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { HashModule } from './hash/hash.module';
 import appConfig from './config/app.config';
+import { TeamsModule } from './teams/teams.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import appConfig from './config/app.config';
     AuthModule,
     PrismaModule,
     HashModule,
+    TeamsModule,
   ],
   controllers: [AppController],
   providers: [],

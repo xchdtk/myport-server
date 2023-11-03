@@ -7,30 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model teams {
-  team_seq          Int       @id @default(autoincrement())
-  title             String    @db.VarChar(50)
-  simple_explantion String    @db.VarChar(100)
-  detail_explantion String?   @db.VarChar(500)
-  status            String    @db.VarChar(20)
-  create_date       DateTime? @db.DateTime(0)
-  modify_date       DateTime? @db.DateTime(0)
-  delete_date       DateTime? @db.DateTime(0)
+enum recruitment_teams_status {
+  ACCEPT
+  WAITING
+  REFUSE
 }
 
 model users {
-  user_seq    Int       @id @default(autoincrement())
-  name        String    @db.VarChar(20)
-  email       String    @db.VarChar(50)
-  password        String    @db.VarChar(500)
-  phone       String    @db.VarChar(20)
-  birth_date  String    @db.VarChar(20)
-  interests   String    @db.VarChar(20)
-  status      String?   @db.VarChar(20)
-  introduce   String?   @db.VarChar(300)
-  create_date DateTime? @db.DateTime(0)
-  modify_date DateTime? @db.DateTime(0)
-  delete_date DateTime? @db.DateTime(0)
+  user_seq          Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(20)
+  password          String              @db.VarChar(200)
+  email             String              @db.VarChar(100)
+  phone             String              @db.VarChar(20)
+  birth_date        String?             @db.VarChar(20)
+  interests         String?             @db.VarChar(20)
+  status            String?             @db.VarChar(20)
+  introduce         String?             @db.VarChar(300)
+  profile_image_url String?             @db.VarChar(150)
+  create_date       DateTime?           @db.DateTime(0)
+  modify_date       DateTime?           @db.DateTime(0)
+  delete_date       DateTime?           @db.DateTime(0)
+  users_sns         users_sns[]
+  user_teams        user_teams[]
+  user_terms        user_terms[]
+  teams             teams[]
+  recruitment_teams recruitment_teams[]
 }
 
 model users_sns {
@@ -39,6 +40,7 @@ model users_sns {
   github_url   String?   @db.VarChar(100)
   velog_url    String?   @db.VarChar(100)
   user_seq     Int
+  user         users     @relation(fields: [user_seq], references: [user_seq])
   create_date  DateTime? @db.DateTime(0)
   modify_date  DateTime? @db.DateTime(0)
   delete_date  DateTime? @db.DateTime(0)
@@ -49,8 +51,11 @@ model users_sns {
 model user_teams {
   user_team_seq Int       @id @default(autoincrement())
   user_seq      Int
+  user          users     @relation(fields: [user_seq], references: [user_seq])
   team_seq      Int
+  team          teams     @relation(fields: [team_seq], references: [team_seq])
   user_role     String    @db.VarChar(20)
+  job           String?   @db.VarChar(50)
   create_date   DateTime? @db.DateTime(0)
   modify_date   DateTime? @db.DateTime(0)
   delete_date   DateTime? @db.DateTime(0)
@@ -64,10 +69,47 @@ model user_terms {
   folio_agreement    Int?      @db.TinyInt
   privacy_agreement  Int?      @db.TinyInt
   location_agreement Int?      @db.TinyInt
-  user_seq           Int?
+  user_seq           Int
+  user               users     @relation(fields: [user_seq], references: [user_seq])
   create_date        DateTime? @db.DateTime(0)
   modify_date        DateTime? @db.DateTime(0)
   delete_date        DateTime? @db.DateTime(0)
 
+  @@index([user_seq], map: "user_seq")
+}
+
+model teams {
+  team_seq            Int                 @id @default(autoincrement())
+  type                String              @db.VarChar(50)
+  name                String              @db.VarChar(50)
+  description         String              @db.VarChar(100)
+  detail_description  String?             @db.VarChar(500)
+  user_seq            Int
+  user                users               @relation(fields: [user_seq], references: [user_seq])
+  status              String              @db.VarChar(20)
+  thumbnail_image_url String?             @db.VarChar(500)
+  recruitment         String?             @db.VarChar(500)
+  create_date         DateTime?           @db.DateTime(0)
+  modify_date         DateTime?           @db.DateTime(0)
+  delete_date         DateTime?           @db.DateTime(0)
+  user_teams          user_teams[]
+  recruitment_teams   recruitment_teams[]
+
+  @@index([user_seq], map: "user_seq")
+}
+
+model recruitment_teams {
+  recruitement_team_seq Int                       @id @default(autoincrement())
+  user_seq              Int
+  user                  users                     @relation(fields: [user_seq], references: [user_seq])
+  team_seq              Int
+  team                  teams                     @relation(fields: [team_seq], references: [team_seq])
+  job                   String?                   @db.VarChar(50)
+  status                recruitment_teams_status?
+  create_date           DateTime?                 @db.DateTime(0)
+  modify_date           DateTime?                 @db.DateTime(0)
+  delete_date           DateTime?                 @db.DateTime(0)
+
+  @@index([team_seq], map: "team_seq")
   @@index([user_seq], map: "user_seq")
 }

@@ -18,26 +18,22 @@ export class AuthService {
   ) {}
 
   async authEmail(email: string): Promise<string> {
-    try {
-      const user = await this.usersService.findOne(email);
-      if (user) {
-        throw new BadRequestException('이미 가입된 이메일입니다.');
-      }
-
-      const authCode = Math.random().toString(36).substring(2, 11);
-      const body = {
-        to: email,
-        from: `Folio <${process.env.MAIL_USER}>`,
-        subject: '회원가입 이메일 인증 부탁드립니다.',
-        text: '이메일 인증 관련 메일입니다.',
-        html: `회원가입 인증코드를 입력해주세요.<br/> 인증코드: ${authCode}`,
-      };
-      await this.mailService.sendMail(body);
-
-      return authCode;
-    } catch (error) {
-      throw new BadRequestException(error);
+    const user = await this.usersService.findOne(email);
+    if (user) {
+      throw new BadRequestException('이미 가입된 이메일입니다.');
     }
+
+    const authCode = Math.random().toString(36).substring(2, 11);
+    const body = {
+      to: email,
+      from: `Folio <${process.env.MAIL_USER}>`,
+      subject: '회원가입 이메일 인증 부탁드립니다.',
+      text: '이메일 인증 관련 메일입니다.',
+      html: `회원가입 인증코드를 입력해주세요.<br/> 인증코드: ${authCode}`,
+    };
+    await this.mailService.sendMail(body);
+
+    return authCode;
   }
 
   async signToken(user: users): Promise<string> {
@@ -49,11 +45,13 @@ export class AuthService {
   }
 
   async verifyPayload(payload: JwtPayload): Promise<users> {
+    console.log('payload', payload);
     const user = await this.usersService.findOne(payload.sub);
 
     if (!user) {
       throw new BadRequestException('유저를 찾을 수 없습니다.');
     }
+
     return user;
   }
 

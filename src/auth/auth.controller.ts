@@ -13,7 +13,6 @@ import {
   Req,
 } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { users } from '@prisma/client';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { AuthEmail } from './enums/email.enum';
@@ -21,8 +20,9 @@ import { AuthService } from './auth.service';
 import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { AuthRegisterDto } from './dtos/auth-register.dto';
 import { AuthUser } from '../users/decorators/user.decorator';
+import { users } from '@prisma/client';
 
-@ApiTags('인증 API')
+@ApiTags('인증 관련 API')
 @ApiResponse({
   status: 200,
   description: 'success',
@@ -46,7 +46,7 @@ export class AuthController {
   @Get('/email')
   @UseGuards(ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
-  async authEmail(@Query('email') email): Promise<string> {
+  async authEmail(@Query('email') email: string): Promise<string> {
     const authCode = await this.authService.authEmail(email);
     return authCode;
   }
@@ -57,7 +57,7 @@ export class AuthController {
   })
   @Post('/register')
   @UseGuards(ThrottlerGuard)
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.CREATED)
   async authRegister(@Body() dto: AuthRegisterDto): Promise<void> {
     await this.authService.register(dto);
     return;
@@ -71,7 +71,7 @@ export class AuthController {
   @UseGuards(ThrottlerGuard)
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async login(@AuthUser() user): Promise<{ token: { access: string } }> {
+  async login(@AuthUser() user: users): Promise<{ token: { access: string } }> {
     const accessToken = await this.authService.signToken(user);
     return {
       token: {
