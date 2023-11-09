@@ -5,7 +5,7 @@ import { TeamsSaveBodyDto } from './dtos/teams-save-body.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { TeamStatus } from './enums/team-status.enum';
 import { UserTeamRole } from './enums/user-team-role.enum';
-import { TeamsSupportBodyDto } from './dtos/teams-support-body.dto';
+import { TeamsApplyBodyDto } from './dtos/teams-apply-body.dto';
 import { ApiBadRequestResponse } from '@nestjs/swagger';
 
 @Injectable()
@@ -173,7 +173,7 @@ export class TeamsService {
     });
   }
 
-  async applyTeam(dto: TeamsSupportBodyDto, user: users): Promise<void> {
+  async applyTeam(dto: TeamsApplyBodyDto, user: users): Promise<void> {
     const { team_seq } = dto;
 
     const team = await this.prisma.teams.findUnique({

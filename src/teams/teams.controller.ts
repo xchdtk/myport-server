@@ -19,7 +19,7 @@ import { TeamsSaveBodyDto } from './dtos/teams-save-body.dto';
 import { TeamsService } from './teams.service';
 import { teams, user_teams, users } from '@prisma/client';
 import { TeamGetQueryDto } from './dtos/teams-get-query.dto';
-import { TeamsSupportBodyDto } from './dtos/teams-support-body.dto';
+import { TeamsApplyBodyDto } from './dtos/teams-apply-body.dto';
 
 @ApiTags('팀 관련 API')
 @ApiResponse({
@@ -130,7 +130,7 @@ export class TeamsController {
   @Post('/applications')
   async supportTeams(
     @AuthUser() user: users,
-    @Body() dto: TeamsSupportBodyDto,
+    @Body() dto: TeamsApplyBodyDto,
   ): Promise<void> {
     await this.teamService.applyTeam(dto, user);
   }
