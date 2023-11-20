@@ -56,7 +56,6 @@ export class TeamsController {
     @AuthUser() user: users,
     @Query() query: TeamGetQueryDto,
   ): Promise<teams[]> {
-    console.log('query아앙', query);
     return await this.teamService.getTeams(user, query);
   }
 
@@ -137,8 +136,6 @@ export class TeamsController {
     @Body() dto: TeamsSaveBodyDto,
     @UploadedFiles() files: { file: Express.Multer.File[] },
   ): Promise<void> {
-    console.log('dto', dto);
-    console.log('file', files.file);
     await this.teamService.saveTeam(dto, user, files?.file[0]);
   }
 
@@ -156,23 +153,5 @@ export class TeamsController {
     @Body() dto: TeamsApplyBodyDto,
   ): Promise<void> {
     await this.teamService.applyTeam(dto, user);
-  }
-
-  // 팀 이미지 업로드
-  @ApiOperation({
-    summary: '팀 이미지 업로드 API',
-    description: '팀 이미지 업로드 API',
-  })
-  @UseGuards(ThrottlerGuard)
-  @UseGuards(JWTAuthGuard)
-  @HttpCode(HttpStatus.CREATED)
-  @Post('/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async teamImageTeams(
-    @AuthUser() user: users,
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<void> {
-    console.log('user', user);
-    console.log('file', file);
   }
 }
