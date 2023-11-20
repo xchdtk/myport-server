@@ -45,7 +45,6 @@ export class AuthService {
   }
 
   async verifyPayload(payload: JwtPayload): Promise<users> {
-    console.log('payload', payload);
     const user = await this.usersService.findOne(payload.sub);
 
     if (!user) {

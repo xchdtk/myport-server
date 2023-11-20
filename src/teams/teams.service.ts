@@ -7,32 +7,34 @@ import { TeamStatus } from './enums/team-status.enum';
 import { UserTeamRole } from './enums/user-team-role.enum';
 import { TeamsApplyBodyDto } from './dtos/teams-apply-body.dto';
 import { ApiBadRequestResponse } from '@nestjs/swagger';
+import { S3Service } from 'src/s3/s3.service';
+import { ConfigBase } from 'aws-sdk/lib/config-base';
+import { TeamGetQueryDto } from './dtos/teams-get-query.dto';
 
 @Injectable()
 export class TeamsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private s3Service: S3Service,
+  ) {}
 
-  async getTeams(
-    user: users,
-    query: {
-      page?: number;
-      limit?: number;
-      searchWord?: string;
-      type?: string;
-    },
-  ): Promise<teams[]> {
-    const { page = 0, limit = 10, searchWord = '', type = '' } = query;
+  async getTeams(user: users, query: TeamGetQueryDto): Promise<teams[]> {
+    const { page, limit, search, type = '' } = query;
+
     const teams = await this.prisma.teams.findMany({
       where: {
         status: TeamStatus.recruiting,
         NOT: {
           user_seq: user.user_seq,
         },
-        ...(searchWord ? { name: searchWord } : {}),
+        ...(search ? { name: search } : {}),
         ...(type ? { type } : {}),
       },
-      skip: page,
-      take: limit,
+      skip: (page - 1) * 10,
+      take: page > 1 ? 10 * (page - 1) : 10,
+      orderBy: {
+        create_date: 'desc',
+      },
     });
 
     return teams;
@@ -129,6 +131,7 @@ export class TeamsService {
           status: true,
           type: true,
           create_date: true,
+          thumbnail_image_url: true,
         },
         where: {
           team_seq: userTeam?.team_seq,
@@ -145,8 +148,18 @@ export class TeamsService {
     return returnDatas;
   }
 
-  async saveTeam(dto: TeamsSaveBodyDto, user: users): Promise<void> {
+  async saveTeam(
+    dto: TeamsSaveBodyDto,
+    user: users,
+    file: Express.Multer.File,
+  ): Promise<void> {
+    let fileKey: string;
     const { type, name, description, detailDescription, recruitment } = dto;
+    if (file) {
+      fileKey = `folio_${Date.now()}_${file.originalname}`;
+      await this.s3Service.uploadS3File(file, fileKey);
+    }
+
     const team = await this.prisma.teams.create({
       data: {
         type,
@@ -154,7 +167,7 @@ export class TeamsService {
         description,
         detail_description: detailDescription,
         recruitment,
-        thumbnail_image_url: '',
+        thumbnail_image_url: fileKey,
         status: TeamStatus.recruiting,
         user_seq: user?.user_seq,
         create_date: new Date(),

@@ -9,6 +9,11 @@ import {
   UseGuards,
   Query,
   Param,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -20,6 +25,10 @@ import { TeamsService } from './teams.service';
 import { teams, user_teams, users } from '@prisma/client';
 import { TeamGetQueryDto } from './dtos/teams-get-query.dto';
 import { TeamsApplyBodyDto } from './dtos/teams-apply-body.dto';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 
 @ApiTags('팀 관련 API')
 @ApiResponse({
@@ -47,6 +56,7 @@ export class TeamsController {
     @AuthUser() user: users,
     @Query() query: TeamGetQueryDto,
   ): Promise<teams[]> {
+    console.log('query아앙', query);
     return await this.teamService.getTeams(user, query);
   }
 
@@ -112,11 +122,24 @@ export class TeamsController {
   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'type', maxCount: 1 },
+      { name: 'name', maxCount: 1 },
+      { name: 'description', maxCount: 1 },
+      { name: 'detailDescription', maxCount: 1 },
+      { name: 'recruitment', maxCount: 1 },
+      { name: 'file', maxCount: 1 },
+    ]),
+  )
   async saveTeams(
     @AuthUser() user: users,
     @Body() dto: TeamsSaveBodyDto,
+    @UploadedFiles() files: { file: Express.Multer.File[] },
   ): Promise<void> {
-    await this.teamService.saveTeam(dto, user);
+    console.log('dto', dto);
+    console.log('file', files.file);
+    await this.teamService.saveTeam(dto, user, files?.file[0]);
   }
 
   // 팀 지원
@@ -128,10 +151,28 @@ export class TeamsController {
   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('/applications')
-  async supportTeams(
+  async applyTeams(
     @AuthUser() user: users,
     @Body() dto: TeamsApplyBodyDto,
   ): Promise<void> {
     await this.teamService.applyTeam(dto, user);
+  }
+
+  // 팀 이미지 업로드
+  @ApiOperation({
+    summary: '팀 이미지 업로드 API',
+    description: '팀 이미지 업로드 API',
+  })
+  @UseGuards(ThrottlerGuard)
+  @UseGuards(JWTAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async teamImageTeams(
+    @AuthUser() user: users,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<void> {
+    console.log('user', user);
+    console.log('file', file);
   }
 }

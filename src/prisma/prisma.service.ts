@@ -16,7 +16,8 @@ export class PrismaService
     super({
       datasources: {
         db: {
-          url: 'mysql://root:Justin1234@@localhost:3306/folio?schema=public',
+          url: process.env.DATABASE_URL,
+          // 'mysql://root:Justin0708@@localhost:3306/folio?schema=public',
         },
       },
     });

@@ -1,17 +1,20 @@
+import { Type } from 'class-transformer';
 import { IsOptional, IsNotEmpty, IsString, IsNumber } from 'class-validator';
 
 export class TeamGetQueryDto {
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
+  @Type(() => Number)
   page: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsNumber()
+  @Type(() => Number)
   limit: number;
 
   @IsOptional()
   @IsString()
-  searchWord: string;
+  search: string;
 
   @IsOptional()
   @IsString()
